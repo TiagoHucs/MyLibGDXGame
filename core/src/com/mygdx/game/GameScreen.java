@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.Iterator;
 
 public class GameScreen implements Screen {
-    private final Drop game;
+    private final ShotGame game;
     private Texture dropImage;
     private Texture bucketImage;
     private Sound dropSound;
@@ -32,7 +32,7 @@ public class GameScreen implements Screen {
     private BitmapFont font;
     private int count_raindrops;
 
-    public GameScreen(final Drop game) {
+    public GameScreen(final ShotGame game) {
         this.game = game;
         //set initial state
         state = State.RUN;

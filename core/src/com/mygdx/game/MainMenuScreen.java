@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,10 +9,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 public class MainMenuScreen implements Screen {
 
 
-    private final Drop game;
+    private final ShotGame game;
     private OrthographicCamera camera;
 
-    public MainMenuScreen(Drop game) {
+    public MainMenuScreen(ShotGame game) {
         this.game = game;
         this.camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 480);
@@ -31,11 +32,11 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Bem vindo ao Jogo ", 100, 150);
-        game.font.draw(game.batch, "Clique que qualquer logar!", 100, 100);
+        game.font.draw(game.batch, "SHOOOOTER ", 100, 150);
+        game.font.draw(game.batch, "Press Enter to start!", 100, 100);
         game.batch.end();
 
-        if (Gdx.input.isTouched()) {
+        if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
             game.setScreen(new GameScreen(game));
             dispose();
         }
