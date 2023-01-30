@@ -107,14 +107,6 @@ public class GameScreen implements Screen {
 
         switch (state) {
             case RUN:
-                //check mouse input
-/*                if (Gdx.input.isTouched()) {
-                    Vector3 touchPos = new Vector3();
-                    touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-                    camera.unproject(touchPos);
-                    bucket.x = touchPos.x - 64 / 2;
-                }*/
-                //check keyboard input
                 if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
                     hero.x -= 200 * Gdx.graphics.getDeltaTime();
                 if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
