@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
@@ -25,8 +24,10 @@ public class BaseGameScreen implements Screen {
 
     private Texture enemyImg;
 
-    private Ator nave;
-    private Rectangle enemy;
+    private Ator astro;
+    private Ator enemy;
+    private Ator minerio;
+    private Ator base;
 
     // Objects used
     Animation<TextureRegion> walkAnimation; // Must declare frame type (TextureRegion)
@@ -42,45 +43,41 @@ public class BaseGameScreen implements Screen {
     BitmapFont myBitMapFont;
 
     int pontos = 0;
+    int o2 = 1000;
 
     public BaseGameScreen(final BaseGame game) {
         this.game = game;
         myBitMapFont = new BitmapFont();
         dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
 
-        //nave = new Ator("hero.png");
-        //enemyImg = new Texture("square.png");
-
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 600);
+        camera.setToOrtho(true, 800, 600);
         batch = new SpriteBatch();
 
-        criaAnima(batch);
+        criaAnima();
 
-        nave = new Ator("hero.png");
-        enemy =  new Ator("square.png");
+        astro = new Ator("astro.png");
+        enemy =  new Ator("enemysprites.png");
+        minerio =  new Ator("minerio.png");
+        base =  new Ator("o2.png");
+        base.x = 400;
+        base.y = 400;
+        base.width = 100;
+        base.height = 100;
+
         aleatorizaQuadrado();
-        enemy.width = 40;
-        enemy.height = 40;
+        aleatorizaMinerio();
 
     }
 
-    private void criaAnima(SpriteBatch batch) {
+    private void criaAnima() {
         int FRAME_COLS = 1;
         int FRAME_ROWS = 2;
 
-        // Load the sprite sheet as a Texture
         walkSheet = new Texture(Gdx.files.internal("enemysprites.png"));
-
-        // Use the split utility method to create a 2D array of TextureRegions. This is
-        // possible because this sprite sheet contains frames of equal size and they are
-        // all aligned.
         TextureRegion[][] tmp = TextureRegion.split(walkSheet,
                 walkSheet.getWidth() / FRAME_COLS,
                 walkSheet.getHeight() / FRAME_ROWS);
-
-        // Place the regions into a 1D array in the correct order, starting from the top
-        // left, going across first. The Animation constructor requires a 1D array.
         TextureRegion[] walkFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
         for (int i = 0; i < FRAME_ROWS; i++) {
@@ -88,12 +85,7 @@ public class BaseGameScreen implements Screen {
                 walkFrames[index++] = tmp[i][j];
             }
         }
-
-        // Initialize the Animation with the frame interval and array of frames
         walkAnimation = new Animation<TextureRegion>(0.525f, walkFrames);
-
-        // Instantiate a SpriteBatch for drawing and reset the elapsed animation
-        // time to 0
         stateTime = 0f;
     }
 
@@ -104,13 +96,29 @@ public class BaseGameScreen implements Screen {
     }
 
     private void checkColision() {
-        if(nave.overlaps(enemy)){
+        if(astro.overlaps(enemy)){
             pontos++;
             aleatorizaQuadrado();
             dropSound.play();
         }
 
-        if(pontos >= 3){
+        if(astro.overlaps(minerio)){
+            pontos++;
+            aleatorizaMinerio();
+            dropSound.play();
+        }
+    }
+
+    private void checkOxigem() {
+        if(astro.overlaps(base)){
+            if(o2 < 1000)
+            o2++;
+        } else {
+            if(o2 > 0)
+            o2--;
+        }
+
+        if(o2 <= 0){
             game.setScreen(new BaseGameMenuScreen(game));
         }
     }
@@ -127,6 +135,18 @@ public class BaseGameScreen implements Screen {
         enemy.setY(random_int2);
     }
 
+    private void aleatorizaMinerio(){
+        int min = 50; // Minimum value of range
+        int max = 500; // Maximum value of range
+
+        int random_int = (int)Math.floor(Math.random() * (max - min + 1) + min);
+        int random_int2 = (int)Math.floor(Math.random() * (max - min + 1) + min);
+
+        System.out.println("Random X "+ random_int + " , Random Y " + random_int2);
+        minerio.setX(random_int);
+        minerio.setY(random_int2);
+    }
+
     @Override
     public void show() {
 
@@ -140,36 +160,37 @@ public class BaseGameScreen implements Screen {
         ScreenUtils.clear(0.2f, 0.2f, 0.2f, 1);
         camera.update();
         checkColision();
-
+        checkOxigem();
         //BATCH
         batch.begin();
 
-
-        //batch.draw(enemyImg,enemy.x,enemy.y,enemy.width,enemy.height);
-        batch.draw(nave.img,nave.x,nave.y,nave.width,nave.height);
+        batch.draw(base.img,base.x,base.y,base.width,base.height);
+        batch.draw(astro.img, astro.x, astro.y, astro.width, astro.height);
+        batch.draw(minerio.img, minerio.x, minerio.y, minerio.width, minerio.height);
         renderizaInimigo(batch);
         myBitMapFont.setColor(5f, 5f, 1f, 1f);
-        myBitMapFont.draw(batch, "pontos: " + pontos,50,580);
+        myBitMapFont.draw(batch, "Oxigênio: " + o2,50,580);
+        myBitMapFont.draw(batch, "Pontos: " + pontos,50,560);
 
 
         batch.end();
         //BATCH
 
         if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP)) {
-            if(nave.x < (600 - nave.getHeight()))
-                nave.y += 200 * Gdx.graphics.getDeltaTime();
+            if(astro.x < (600 - astro.getHeight()))
+                astro.y += 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-            if(nave.x > 0)
-                nave.x -= 200 * Gdx.graphics.getDeltaTime();
+            if(astro.x > 0)
+                astro.x -= 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-            if(nave.y > 0)
-                nave.y -= 200 * Gdx.graphics.getDeltaTime();
+            if(astro.y > 0)
+                astro.y -= 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            if(nave.x < (800 - nave.getWidth()))
-                nave.x += 200 * Gdx.graphics.getDeltaTime();
+            if(astro.x < (800 - astro.getWidth()))
+                astro.x += 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
             System.exit(0);
@@ -199,8 +220,9 @@ public class BaseGameScreen implements Screen {
     @Override
     public void dispose () {
         batch.dispose();
-        nave.img.dispose();
-        enemyImg.dispose();
+        astro.img.dispose();
+        enemy.img.dispose();
+        base.img.dispose();
         dropSound.dispose();
     }
 }
