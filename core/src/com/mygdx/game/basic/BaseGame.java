@@ -19,6 +19,7 @@ import com.mygdx.game.drop.MainMenuScreen;
  * @version 1.0
  */
 public class BaseGame extends Game {
+
     public SpriteBatch batch;
     public BitmapFont font;
 

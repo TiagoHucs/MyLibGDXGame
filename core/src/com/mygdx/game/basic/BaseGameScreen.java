@@ -48,8 +48,8 @@ public class BaseGameScreen implements Screen {
         myBitMapFont = new BitmapFont();
         dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
 
-        nave = new Ator();
-        enemyImg = new Texture("square.png");
+        //nave = new Ator("hero.png");
+        //enemyImg = new Texture("square.png");
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
@@ -58,8 +58,10 @@ public class BaseGameScreen implements Screen {
         criaAnima(batch);
 
         nave = new Ator("hero.png");
-        enemy =  new Ator("enemy.png");
+        enemy =  new Ator("square.png");
         aleatorizaQuadrado();
+        enemy.width = 40;
+        enemy.height = 40;
 
     }
 
