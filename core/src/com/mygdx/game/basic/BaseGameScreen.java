@@ -1,8 +1,8 @@
 package com.mygdx.game.basic;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,19 +12,20 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
+
 /**
  * @author Mehdi Ouassou
  * @version 1.0
  */
-public class GameEngine extends ApplicationAdapter {
+public class BaseGameScreen implements Screen {
+    final BaseGame game;
     private Sound dropSound;
 
     private SpriteBatch batch;
 
-    private Texture heroImg;
     private Texture enemyImg;
 
-    private Rectangle hero;
+    private Ator nave;
     private Rectangle enemy;
 
     // Objects used
@@ -42,12 +43,12 @@ public class GameEngine extends ApplicationAdapter {
 
     int pontos = 0;
 
-    @Override
-    public void create () {
+    public BaseGameScreen(final BaseGame game) {
+        this.game = game;
         myBitMapFont = new BitmapFont();
         dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
 
-        heroImg = new Texture("square.png");
+        nave = new Ator();
         enemyImg = new Texture("square.png");
 
         camera = new OrthographicCamera();
@@ -56,16 +57,9 @@ public class GameEngine extends ApplicationAdapter {
 
         criaAnima(batch);
 
-        hero = new Rectangle();
-        hero.x = 0;
-        hero.y = 100;
-        hero.width = 40;
-        hero.height = 40;
-
-        enemy = new Rectangle();
+        nave = new Ator("hero.png");
+        enemy =  new Ator("enemy.png");
         aleatorizaQuadrado();
-        enemy.width = 40;
-        enemy.height = 40;
 
     }
 
@@ -101,63 +95,21 @@ public class GameEngine extends ApplicationAdapter {
         stateTime = 0f;
     }
 
-    @Override
-    public void render () {
-        if (flagStart) {
-            flagStart = false;
-        }
-        ScreenUtils.clear(0.2f, 0.2f, 0.2f, 1);
-        camera.update();
-        checkColision();
-
-        //BATCH
-        batch.begin();
-
-
-        batch.draw(enemyImg,enemy.x,enemy.y,enemy.width,enemy.height);
-        renderizaHeroi(batch);
-        myBitMapFont.setColor(5f, 5f, 1f, 1f);
-        myBitMapFont.draw(batch, "pontos: " + pontos,50,580);
-
-
-        batch.end();
-        //BATCH
-
-        if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP)) {
-            if(hero.x < (600 - hero.getHeight()))
-            hero.y += 200 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
-            if(hero.x > 0)
-            hero.x -= 200 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
-            if(hero.y > 0)
-            hero.y -= 200 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            if(hero.x < (800 - hero.getWidth()))
-            hero.x += 200 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
-            System.exit(0);
-        }
-
-    }
-
-    private void renderizaHeroi(SpriteBatch batch) {
+    private void renderizaInimigo(SpriteBatch batch) {
         stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
-        // Get current frame of animation for the current stateTime
         TextureRegion currentFrame = walkAnimation.getKeyFrame(stateTime, true);
-        //batch.draw(heroImg,hero.x,hero.y,hero.width,hero.height);
-        batch.draw(currentFrame, hero.x, hero.y,hero.width,hero.height); // Draw current frame at (50, 50)
+        batch.draw(currentFrame, enemy.x, enemy.y,enemy.width,enemy.height); // Draw current frame at (50, 50)
     }
 
     private void checkColision() {
-        if(hero.overlaps(enemy)){
+        if(nave.overlaps(enemy)){
             pontos++;
             aleatorizaQuadrado();
             dropSound.play();
+        }
+
+        if(pontos >= 3){
+            game.setScreen(new BaseGameMenuScreen(game));
         }
     }
 
@@ -174,9 +126,78 @@ public class GameEngine extends ApplicationAdapter {
     }
 
     @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void render(float v) {
+        if (flagStart) {
+            flagStart = false;
+        }
+        ScreenUtils.clear(0.2f, 0.2f, 0.2f, 1);
+        camera.update();
+        checkColision();
+
+        //BATCH
+        batch.begin();
+
+
+        //batch.draw(enemyImg,enemy.x,enemy.y,enemy.width,enemy.height);
+        batch.draw(nave.img,nave.x,nave.y,nave.width,nave.height);
+        renderizaInimigo(batch);
+        myBitMapFont.setColor(5f, 5f, 1f, 1f);
+        myBitMapFont.draw(batch, "pontos: " + pontos,50,580);
+
+
+        batch.end();
+        //BATCH
+
+        if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP)) {
+            if(nave.x < (600 - nave.getHeight()))
+                nave.y += 200 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
+            if(nave.x > 0)
+                nave.x -= 200 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+            if(nave.y > 0)
+                nave.y -= 200 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            if(nave.x < (800 - nave.getWidth()))
+                nave.x += 200 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+            System.exit(0);
+        }
+    }
+
+    @Override
+    public void resize(int i, int i1) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
     public void dispose () {
         batch.dispose();
-        heroImg.dispose();
+        nave.img.dispose();
         enemyImg.dispose();
         dropSound.dispose();
     }
