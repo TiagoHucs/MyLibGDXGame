@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
  * @author Mehdi Ouassou
  * @version 1.0
  */
-public class BasicGame extends ApplicationAdapter {
+public class GameEngine extends ApplicationAdapter {
     private Sound dropSound;
 
     private SpriteBatch batch;
@@ -40,13 +40,15 @@ public class BasicGame extends ApplicationAdapter {
 
     BitmapFont myBitMapFont;
 
+    int pontos = 0;
+
     @Override
     public void create () {
         myBitMapFont = new BitmapFont();
         dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
 
         heroImg = new Texture("square.png");
-        enemyImg = new Texture("enemysprites.png");
+        enemyImg = new Texture("square.png");
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
@@ -55,16 +57,15 @@ public class BasicGame extends ApplicationAdapter {
         criaAnima(batch);
 
         hero = new Rectangle();
-        hero.x = 20;
-        hero.y = 20;
-        hero.width = 20;
-        hero.height = 20;
+        hero.x = 0;
+        hero.y = 100;
+        hero.width = 40;
+        hero.height = 40;
 
         enemy = new Rectangle();
-        enemy.x = 80;
-        enemy.y = 80;
-        enemy.width = 20;
-        enemy.height = 20;
+        aleatorizaQuadrado();
+        enemy.width = 40;
+        enemy.height = 40;
 
     }
 
@@ -115,24 +116,31 @@ public class BasicGame extends ApplicationAdapter {
 
         batch.draw(enemyImg,enemy.x,enemy.y,enemy.width,enemy.height);
         renderizaHeroi(batch);
-        myBitMapFont.setColor(1f, 1f, 1f, 1f);
-        myBitMapFont.draw(batch, "pontos: 0 ",50,600);
+        myBitMapFont.setColor(5f, 5f, 1f, 1f);
+        myBitMapFont.draw(batch, "pontos: " + pontos,50,580);
 
 
         batch.end();
         //BATCH
 
         if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.UP)) {
+            if(hero.x < (600 - hero.getHeight()))
             hero.y += 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.LEFT)) {
+            if(hero.x > 0)
             hero.x -= 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.S) || Gdx.input.isKeyPressed(Keys.DOWN)) {
+            if(hero.y > 0)
             hero.y -= 200 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            if(hero.x < (800 - hero.getWidth()))
             hero.x += 200 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+            System.exit(0);
         }
 
     }
@@ -147,6 +155,7 @@ public class BasicGame extends ApplicationAdapter {
 
     private void checkColision() {
         if(hero.overlaps(enemy)){
+            pontos++;
             aleatorizaQuadrado();
             dropSound.play();
         }
@@ -160,8 +169,8 @@ public class BasicGame extends ApplicationAdapter {
         int random_int2 = (int)Math.floor(Math.random() * (max - min + 1) + min);
 
         System.out.println("Random X "+ random_int + " , Random Y " + random_int2);
-        enemy.setX(enemy.getX()+random_int);
-        enemy.setY(enemy.getY()+random_int2);
+        enemy.setX(random_int);
+        enemy.setY(random_int2);
     }
 
     @Override

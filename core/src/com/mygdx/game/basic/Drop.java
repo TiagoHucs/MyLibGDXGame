@@ -1,24 +1,22 @@
-package com.mygdx.game;
+package com.mygdx.game.basic;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class ShotGame extends Game {
+public class Drop extends Game {
 
     public SpriteBatch batch;
     public BitmapFont font;
 
     public void create() {
-
         batch = new SpriteBatch();
-        font = new BitmapFont();
-
+        font = new BitmapFont(); // use libGDX's default Arial font
         this.setScreen(new MainMenuScreen(this));
     }
 
     public void render() {
-        super.render(); //important!
+        super.render(); // important!
     }
 
     public void dispose() {
